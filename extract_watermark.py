@@ -10,9 +10,9 @@ from blind_watermark import WaterMark
 from blind_watermark.recover import estimate_crop_parameters, recover_crop
 
 # Configuration
-WATERMARKED_IMAGE = 'examples/output/watermarked2.png'  # Path to the watermarked image (potentially cropped/screenshot)
-ORIGINAL_WATERMARKED_IMAGE = 'examples/pic/ori_img.jpeg'  # Path to the original watermarked image (for recovery)
-WATERMARK_LENGTH = 63  # Length of watermark (from embedding process) - for 'v-5.37.2'
+WATERMARKED_IMAGE = 'examples/output/vd013_background_watermarked_simulated.png'  # Path to the watermarked image (potentially cropped/screenshot)
+ORIGINAL_IMAGE = 'examples/output/vd013_background_watermarked.webp'  # Path to the original watermarked image (for recovery)
+WATERMARK_LENGTH = 334  # Length of watermark (from embedding process) - for 'v-5.37.2'
 PASSWORD_IMG = 1  # Must match the password used during embedding
 PASSWORD_WM = 1   # Must match the password used during embedding
 
@@ -20,7 +20,7 @@ PASSWORD_WM = 1   # Must match the password used during embedding
 # The script assumes all images are altered and compares with the original to recover
 ALWAYS_USE_RECOVERY = True  # Always attempt recovery when original image is available
 SCALE_RANGE = (0.5, 2)  # Range of scale factors to search for recovery
-SEARCH_NUM = 200  # Number of search iterations for recovery (higher = more accurate but slower)
+SEARCH_NUM = 500  # Number of search iterations for recovery (higher = more accurate but slower)
 
 def extract_watermark(watermarked_img, wm_length, pwd_img=1, pwd_wm=1):
     """
@@ -100,8 +100,9 @@ def extract_with_recovery(attacked_img, original_img, wm_length, pwd_img=1, pwd_
     print(f"  - Match score: {score:.4f}")
     
     # Step 2: Recover the image to original dimensions
-    recovered_file = attacked_img.replace('.png', '_recovered.png').replace('.jpg', '_recovered.jpg')
-    recovered_file = recovered_file.replace('.jpeg', '_recovered.jpeg')
+    # Generate recovered filename with _recovered suffix and webp extension
+    base_name = os.path.splitext(attacked_img)[0]
+    recovered_file = f"{base_name}_recovered.png"
     print(f"\nRecovering image to: {recovered_file}")
     
     if is_extended:
@@ -162,9 +163,9 @@ if __name__ == '__main__':
     
     # Check if we can use recovery
     can_use_recovery = (
-        ORIGINAL_WATERMARKED_IMAGE and 
-        os.path.exists(ORIGINAL_WATERMARKED_IMAGE) and
-        WATERMARKED_IMAGE != ORIGINAL_WATERMARKED_IMAGE
+        ORIGINAL_IMAGE and 
+        os.path.exists(ORIGINAL_IMAGE) and
+        WATERMARKED_IMAGE != ORIGINAL_IMAGE
     )
     
     print(f"\n📌 Target image: {WATERMARKED_IMAGE}")
@@ -172,14 +173,14 @@ if __name__ == '__main__':
     
     # Main extraction strategy: ALWAYS use recovery if original image is available
     if can_use_recovery and ALWAYS_USE_RECOVERY:
-        print(f"📌 Original reference: {ORIGINAL_WATERMARKED_IMAGE}")
+        print(f"📌 Original reference: {ORIGINAL_IMAGE}")
         print("\n🔄 Assuming image has been altered (cropped/screenshot/extended)")
         print("🔄 Using recovery-based extraction...")
         
         try:
             extracted_text, recovery_info = extract_with_recovery(
                 attacked_img=WATERMARKED_IMAGE,
-                original_img=ORIGINAL_WATERMARKED_IMAGE,
+                original_img=ORIGINAL_IMAGE,
                 wm_length=WATERMARK_LENGTH,
                 pwd_img=PASSWORD_IMG,
                 pwd_wm=PASSWORD_WM,

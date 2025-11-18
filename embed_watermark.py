@@ -7,9 +7,8 @@ import os
 from blind_watermark import WaterMark
 
 # Configuration
-INPUT_IMAGE = 'examples/pic/ori_img.jpeg'  # Path to your original image
-OUTPUT_IMAGE = 'examples/output/watermarked.png'  # Path to save watermarked image
-WATERMARK_TEXT = 'v-5.37.2'  # Your watermark string
+INPUT_IMAGE = 'examples/pic/vd013_background.webp'  # Path to your original image
+WATERMARK_TEXT = '5.34.3+53403000(tags/release-5.34.3-29751)'  # Your watermark string
 PASSWORD_IMG = 1  # Password for image (can be any number)
 PASSWORD_WM = 1   # Password for watermark (can be any number)
 
@@ -45,17 +44,26 @@ def embed_watermark(input_img, output_img, watermark_text, pwd_img=1, pwd_wm=1):
     return len_wm
 
 if __name__ == '__main__':
+    # Generate output path by adding _watermarked suffix
+    input_dir = os.path.dirname(INPUT_IMAGE)
+    input_filename = os.path.basename(INPUT_IMAGE)
+    input_name, input_ext = os.path.splitext(input_filename)
+    
+    # Create output in examples/output/ directory with _watermarked suffix
+    output_dir = 'examples/output'
+    output_image = os.path.join(output_dir, f'{input_name}_watermarked.webp')
+    
     # Make sure output directory exists
-    os.makedirs(os.path.dirname(OUTPUT_IMAGE), exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
     
     # Embed the watermark
     print(f"Embedding watermark into: {INPUT_IMAGE}")
     print(f"Watermark text: {WATERMARK_TEXT}")
     
-    len_wm = embed_watermark(INPUT_IMAGE, OUTPUT_IMAGE, WATERMARK_TEXT, PASSWORD_IMG, PASSWORD_WM)
+    len_wm = embed_watermark(INPUT_IMAGE, output_image, WATERMARK_TEXT, PASSWORD_IMG, PASSWORD_WM)
     
     print(f"✓ Watermark embedded successfully!")
-    print(f"✓ Output saved to: {OUTPUT_IMAGE}")
+    print(f"✓ Output saved to: {output_image}")
     print(f"✓ Watermark length: {len_wm}")
     print(f"\nIMPORTANT: Save this information for extraction:")
     print(f"  - Watermark length: {len_wm}")
